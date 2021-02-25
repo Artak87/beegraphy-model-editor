@@ -38,7 +38,7 @@ function WoodenTest(textData, width, length) {
     const rectangle = new Rectangle(d, d);
     move(rectangle, [x2 - itemSize / 2, y]);
 
-    const note = new Text(textData.font, `${d}mm`, 2);
+    const note = new Text(textData.font, `${d}mm`, 3);
     const noteMeasure = modelExtents(note);
     move(note, [(width - noteMeasure.width) / 2, y + itemSize / 2]);
     note.layer = "blue";
