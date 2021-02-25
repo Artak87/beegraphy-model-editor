@@ -1,7 +1,23 @@
 import makerjs from "makerjs";
+import opentype from "opentype.js";
 import * as sbp from "svg-blueprint";
 
-const data = {};
+const fonts = {};
+const loadFont = fontName => {
+  opentype.load(`/fonts/${fontName}.ttf`, (err, font) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    fonts[fontName] = font;
+  });
+}
+
+loadFont('Mardoto-Bold');
+loadFont('Mardoto-Light');
+loadFont('Mardoto-Regular');
+loadFont('Mardoto-Thin');
+
 const blueprint = new sbp.Blueprint({
   axisColor: "#002082",
   axisOpacity: 0.9,
@@ -24,9 +40,9 @@ function b64EncodeUnicode(str) {
 const getValueFromParam = param => {
   if (param.type === "text") {
     return {
-      font: param.font,
-      text: param.text,
+      font: fonts[param.font],
       size: param.size,
+      text: param.value,
       value: param.value,
     };
   }
@@ -45,7 +61,20 @@ const getTitleFromParam = (param) => {
   return typeof param.title !== "string" ? param.title['en-US'] : param.title;
 };
 
-export const generateModel = (Model, downloadableModelName = '') => {
+export const generateModel = (Model, downloadableModelName) => {
+  const createTimer = () => {
+    setTimeout(() => {
+      if (Object.keys(fonts).length < 4) {
+        createTimer();
+      } else  {
+        _generateModel(Model, downloadableModelName);
+      }
+    }, 50);
+  };
+  createTimer();
+}
+
+const _generateModel = (Model, downloadableModelName = '') => {
   const values = (Model.metaParameters || []).map(param => getValueFromParam(param));
 
   const generate = () => {
@@ -138,6 +167,9 @@ const generateByType = (index, type, params, handleChange) => {
   if (type === "range") {
     return generateRange(index, params, handleChange);
   }
+  if (type === "text") {
+    return generateText(index, params, handleChange);
+  }
   if (type === "bool") {
     return generateBool(index, params, handleChange);
   }
@@ -158,6 +190,19 @@ const generateRange = (index, params, handleChange) => {
   el.step = params.step;
   el.value = params.value;
   el.oninput = ev => handleChange(index, params.type, +ev.target.value);
+  return el;
+};
+
+const generateText = (index, params, handleChange) => {
+  const el = document.createElement("input");
+  el.type = "input";
+  el.value = params.value;
+  el.onchange = ev => handleChange(index, params.type, {
+    font: fonts[params.font],
+    size: params.size,
+    text: ev.target.value,
+    value: ev.target.value,
+  });
   return el;
 };
 

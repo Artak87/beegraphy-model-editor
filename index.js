@@ -1,5 +1,5 @@
 import {generateModel} from "./utils";
 
-import Model from "./src/MetallicTable";
+import Model from "./src/WoodenTest";
 
-generateModel(Model, 'MetallicTable');
+generateModel(Model, 'WoodenTest');

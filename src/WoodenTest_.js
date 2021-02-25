@@ -78,7 +78,7 @@ function Rectangles(maxRadius, gap, count) {
   };
 }
 
-export default function TextModel(
+function WoodenTest(
   textData,
   width,
   length,
@@ -203,3 +203,5 @@ TextModel.metaParameters = [
   { title: "step", type: "range", min: 1, max: 3, value: 1},
 ];
 
+
+export default WoodenTest;
