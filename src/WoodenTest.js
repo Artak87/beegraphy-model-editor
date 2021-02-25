@@ -67,14 +67,14 @@ function WoodenTest(textData, width, length) {
 
 WoodenTest.metaParameters = [
   {
-    title: "թեստ",
+    title: "Text",
     type: "text",
     font: "Mardoto-Bold",
     value: "Your text here",
     size: 5,
   },
-  { title: "width", type: "range", min: 50, max: 150, value: 75 },
-  { title: "length", type: "range", min: 50, max: 150, value: 125 },
+  { title: "Width", type: "range", min: 50, max: 150, value: 75 },
+  { title: "Length", type: "range", min: 50, max: 150, value: 125 },
 ];
 
 export default WoodenTest;
