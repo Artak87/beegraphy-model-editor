@@ -194,16 +194,52 @@ const generateRange = (index, params, handleChange) => {
 };
 
 const generateText = (index, params, handleChange) => {
-  const el = document.createElement("input");
-  el.type = "input";
-  el.value = params.value;
-  el.onchange = ev => handleChange(index, params.type, {
-    font: fonts[params.font],
-    size: params.size,
-    text: ev.target.value,
-    value: ev.target.value,
+  const wrapper = document.createElement("div");
+  const line1 = document.createElement("div");
+  const line2 = document.createElement("div");
+  wrapper.appendChild(line1);
+  wrapper.appendChild(line2);
+
+  const frontSelect = document.createElement("select");
+  Object.keys(fonts).forEach((key) => {
+    const option = document.createElement("option");
+    option.value = key;
+    option.textContent = key;
+    option.selected = params.font === key;
+    frontSelect.appendChild(option);
   });
-  return el;
+  frontSelect.style.width = '40%'
+  frontSelect.style.margin = '3px';
+
+  const frontSizeInput = document.createElement("input");
+  frontSizeInput.type = "number";
+  frontSizeInput.value = params.size;
+  frontSizeInput.style.width = '8%'
+  frontSizeInput.style.margin = '3px';
+
+  !params.fontDisabled && line1.appendChild(frontSelect)
+  !params.sizeDisabled && line1.appendChild(frontSizeInput)
+
+  const textInput = document.createElement("textarea");
+  textInput.value = params.value;
+  textInput.style.width = '50%'
+  textInput.style.margin = '3px';
+
+
+  const getValue = () => ({
+    font: fonts[frontSelect.value],
+    size: +frontSizeInput.value ,
+    text: textInput.value,
+    value: textInput.value,
+  });
+
+  frontSizeInput.onchange = () => handleChange(index, params.type, getValue());
+  frontSelect.onchange = () => handleChange(index, params.type, getValue());
+  textInput.onchange = () => handleChange(index, params.type, getValue());
+
+  params.value !== false && line2.appendChild(textInput)
+
+  return wrapper;
 };
 
 const generateBool = (index, params, handleChange) => {
