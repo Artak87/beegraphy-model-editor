@@ -1,5 +1,5 @@
 import {generateModel} from "./utils";
 
-import Model from "./src/WoodenRuler";
+import Model from "./src/WoodenRulerWithName";
 
-generateModel(Model, 'WoodenRuler');
+generateModel(Model, 'WoodenRulerWithName');
