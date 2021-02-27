@@ -39,7 +39,7 @@ function WoodenRulerWithName(nameData, width, length, rulerFontData) {
   move(roundRectangle, [padding, padding]);
 
 
-  const name = new Text(nameData.font, nameData.text, padding);
+  const name = new Text(nameData.font, (nameData.text || "_").toLocaleUpperCase(), padding);
   const nameMeasure = modelExtents(name)
   const scaleRate = Math.min(
     height / (nameMeasure.height + Math.min(...nameMeasure.low)),
