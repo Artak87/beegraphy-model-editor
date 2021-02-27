@@ -3,7 +3,7 @@ import makerjs from "makerjs";
 const {Line, Circle} = makerjs.paths;
 const {expand, distort, fillet} = makerjs.path;
 const {Text, Rectangle, Ellipse, BezierCurve, RoundRectangle} = makerjs.models;
-const {move, combineUnion, scale, outline, simplify, clone, combine} = makerjs.model;
+const {move, combineUnion, scale, outline, simplify, clone, combine, combineSubtraction, walkPaths} = makerjs.model;
 const {modelExtents} = makerjs.measure;
 
 function WoodenRulerWithName(nameData, width, length, rulerFontData) {
@@ -41,7 +41,11 @@ function WoodenRulerWithName(nameData, width, length, rulerFontData) {
 
   const name = new Text(nameData.font, nameData.text, padding);
   const nameMeasure = modelExtents(name)
-  scale(name, height / (nameMeasure.height + Math.min(...nameMeasure.low)), true);
+  const scaleRate = Math.min(
+    height / (nameMeasure.height + Math.min(...nameMeasure.low)),
+    (width - 2 * height / 3) / nameMeasure.width
+  );
+  scale(name, scaleRate, true);
   move(name, [(fullWidth - modelExtents(name).width) / 2, padding / 2])
 
   const r1 = clone(roundRectangle);
@@ -50,22 +54,16 @@ function WoodenRulerWithName(nameData, width, length, rulerFontData) {
   const r2 = clone(roundRectangle);
   const n2 = clone(name);
 
-  this.models.xz = combine(
-    n1, r1,
-    false,
-    true,
-    false,
-    false,
-  );
-  this.models.xz2 = combine(
-    r2, n2,
-    false,
-    true,
-    true,
-    false,
-  );
-  this.models.xz.layer = "blue";
+  this.models.xz2 = combineSubtraction(r2, n2);
   this.models.xz2.layer = "red";
+
+  this.models.xz = combineSubtraction(n1, r1);
+  this.models.xz.layer = "blue";
+  walkPaths(this.models.xz, (parent, name) => {
+    if (r1 === parent) {
+      delete parent.paths[name];
+    }
+  })
 
   // this.models.name = name;
 
@@ -94,26 +92,26 @@ function WoodenRulerWithName(nameData, width, length, rulerFontData) {
   // this.models.ellipse = ellipse;
   // this.models.roundRectangle = roundRectangle;
 
-  // for (let i = 0; i <= width; ++i) {
-  //   const height = i % 10 === 0 ? 10 : i % 5 === 0 ? 7.5 : 5;
-  //   const x = i + padding;
-  //   const y = fullLength;
-  //   const line = new Line([x, y - 1], [x, y - height]);
-  //   line.layer = "blue";
-  //   this.paths[`_${i}`] = line;
-  //
-  //   if (i % 10 === 0) {
-  //     const text = new Text(rulerFontData.font, (i / 10).toString(), rulerFontData.size);
-  //     text.layer = "blue";
-  //     const measure = modelExtents(text);
-  //     move(text, [x - measure.width / 2, y - 11 - measure.height]);
-  //     this.models[`_${i}`] = text;
-  //   }
-  // }
+  for (let i = 0; i <= width; ++i) {
+    const height = i % 10 === 0 ? 10 : i % 5 === 0 ? 7.5 : 5;
+    const x = i + padding;
+    const y = fullLength;
+    const line = new Line([x, y - 1], [x, y - height]);
+    line.layer = "blue";
+    this.paths[`_${i}`] = line;
+
+    if (i % 10 === 0) {
+      const text = new Text(rulerFontData.font, (i / 10).toString(), rulerFontData.size);
+      text.layer = "blue";
+      const measure = modelExtents(text);
+      move(text, [x - measure.width / 2, y - 11 - measure.height]);
+      this.models[`_${i}`] = text;
+    }
+  }
 }
 
 WoodenRulerWithName.metaParameters = [
-  {title: "Name", type: "text", font: "Mardoto-Bold", size: 20, sizeDisabled: true, value: "ՎԱՍԱԿ"},
+  {title: "Name", type: "text", font: "Mardoto-Bold", size: 20, sizeDisabled: true, value: "ՎԱՍԱԿ ԱԽՊԵՐ"},
   {title: "width", type: "range", min: 100, max: 450, value: 200, step: 10},
   {title: "length", type: "range", min: 15, max: 50, value: 25, step: 1},
   {title: "ruler fonts", type: "text", font: "Mardoto-Thin", size: 3.5, value: false},
